@@ -1,26 +1,30 @@
 import cv2
 from ultralytics import YOLO
 
-# Load the model
-model = YOLO('yolov11n.pt')  # Choose the model best suited for your needs
+# Load the correct model
+model = YOLO('yolov11n.pt')  # Ensure the model file exists
 
 # Open a video stream
-cap = cv2.VideoCapture(0)  # Use 0 for the default webcam, 1 for an external camera
+cap = cv2.VideoCapture(0)  # Use 0 for the default webcam
 
-while True:
+while cap.isOpened():
     ret, frame = cap.read()
     
     if not ret:
+        print("Failed to grab frame")
         break
 
-    # Perform object detection
-    results = model(frame)
+    # Perform object detection correctly
+    results = model.predict(frame, conf=0.5)  # Ensure correct function usage
 
     # Access the first result in the list
-    result = results[0]  # Assuming there's only one image/frame being processed
+    result = results[0] if results else None
 
-    # Draw results on the frame
-    annotated_frame = result.plot()
+    if result:
+        # Draw results on the frame
+        annotated_frame = result.plot()
+    else:
+        annotated_frame = frame  # If no detection, show the original frame
 
     # Display the frame
     cv2.imshow('Object Detection', annotated_frame)
